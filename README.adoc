@@ -1,0 +1,117 @@
+= Go-Wardley - Wardley maps generator
+David Gamba, https://github.com/DavidGamba
+:idprefix:
+:toc: macro
+
+Wardley Maps Generator written in Golang.
+The generator takes an HCL based map description and generates a map in SVG format.
+If viewed on a browser, the SVG will have hover over functionality to get additional details on node descriptions.
+
+toc::[]
+
+== Usage
+
+----
+$ go-wardley -f examples/map.hcl
+map.svg
+
+$ go-wardley -f examples/map.hcl -o examples/map.svg
+examples/map.svg
+----
+
+image::./examples/map.svg[]
+
+== Element types
+
+=== Node
+
+----
+node user {
+  label = "User"
+	fill  = "black"
+	color = "black"
+	visibility = 1
+	evolution = "custom"
+	x = 1
+	description = "User Description"
+}
+----
+
+`evolution`:: `genesis`, `custom`, `product` or `commodity`.
+
+=== Connector
+
+----
+connector {
+	from = "user"
+	to   = "vcs"
+	label = ""
+	color = "black"
+	type = "normal"
+}
+----
+
+`type`:: `normal`, `bold`, `change` or `change-inertia`.
+
+== Example input
+
+A more extensive one in link:./examples/map.hcl[].
+
+[source, hcl]
+----
+node user {
+	label = "User"
+	fill  = "black"
+	color = "black"
+	visibility = 1
+	evolution = "custom"
+	x = 1
+	description = "User Description"
+}
+
+node vcs {
+	label = "On Prem VCS"
+	fill  = "black"
+	color = "black"
+	visibility = 2
+	evolution = "product"
+	x = 1
+	description = "On prem VCS"
+}
+
+node code_commit {
+	label = "Code Commit Mirror"
+	fill  = "white"
+	color = "red"
+	visibility = 2
+	evolution = "commodity"
+	x = 1
+	description = "Allows Code Pipeline to access the code."
+}
+
+connector {
+	from = "user"
+	to   = "vcs"
+	label = ""
+	color = "black"
+	type = "normal"
+}
+
+connector {
+	from = "vcs"
+	to   = "code_commit"
+	label = ""
+	color = "red"
+	type = "change-inertia"
+}
+----
+
+== License
+
+This file is part of go-wardley.
+
+Copyright (C) 2019  David Gamba Rios
+
+This Source Code Form is subject to the terms of the Mozilla Public
+License, v. 2.0. If a copy of the MPL was not distributed with this
+file, You can obtain one at http://mozilla.org/MPL/2.0/.

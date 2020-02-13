@@ -116,7 +116,7 @@
 </g>
 </g>
 <g style="text-shadow: 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white">
-<title>Jenkins is a product we have to maintain and customize in house.</title>
+<title>Product we have to maintain and customize in house.</title>
 <circle cx="700" cy="-202" r="5" style="fill:black;stroke:black" />
 <g style="font-size:9px;fill:black;text-anchor:left">
 <text x="708" y="-192" >On Prem CI/CD</text>

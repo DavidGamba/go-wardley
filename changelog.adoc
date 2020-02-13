@@ -1,0 +1,14 @@
+= Changelog
+
+== v0.2.0
+
+* Add a changelog.
+* Add option to print executable version: `./go-wardley -V` or `./go-wardley --version`.
+* Update HCL parsing code to allow for optional values.
+* Update HCL parsing to print user facing diagnostic errors.
+* Add fsnotify file watches.
+* Allow defining Map Details (size) in HCL.
+
+== v0.1.0
+
+Sharing MVP with the world, it sucks but it works.

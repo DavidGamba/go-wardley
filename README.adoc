@@ -12,11 +12,17 @@ toc::[]
 == Usage
 
 ----
-$ go-wardley -f examples/map.hcl
-map.svg
+$ ./go-wardley -f examples/map.hcl
+Updated file: examples/map.svg
 
-$ go-wardley -f examples/map.hcl -o examples/map.svg
-examples/map.svg
+$ ./go-wardley -f examples/map.hcl -o examples/map.svg
+Updated file: examples/map.svg
+
+# Watch for file changes and update the file automatically.
+$ ./go-wardley -f examples/map.hcl --watch
+Starting watcher on: examples
+Updated file: examples/map.svg
+Updated file: examples/map.svg
 ----
 
 image::./examples/map.svg[]
@@ -27,13 +33,13 @@ image::./examples/map.svg[]
 
 ----
 node user {
-  label = "User"
+	label = "User"       # Required
+	visibility = 1       # Required
+	evolution = "custom" # Required
+	x = 1                # Required
+	description = "Description"
 	fill  = "black"
 	color = "black"
-	visibility = 1
-	evolution = "custom"
-	x = 1
-	description = "User Description"
 }
 ----
 
@@ -43,9 +49,9 @@ node user {
 
 ----
 connector {
-	from = "user"
-	to   = "vcs"
-	label = ""
+	from = "user"         # Required
+	to   = "vcs"          # Required
+	label = "Description"
 	color = "black"
 	type = "normal"
 }
@@ -61,56 +67,76 @@ A more extensive one in link:./examples/map.hcl[].
 ----
 node user {
 	label = "User"
-	fill  = "black"
-	color = "black"
 	visibility = 1
 	evolution = "custom"
 	x = 1
 	description = "User Description"
+	fill  = "black"
 }
 
 node vcs {
 	label = "On Prem VCS"
-	fill  = "black"
-	color = "black"
 	visibility = 2
 	evolution = "product"
 	x = 1
 	description = "On prem VCS"
+	fill  = "black"
 }
 
 node code_commit {
 	label = "Code Commit Mirror"
-	fill  = "white"
-	color = "red"
 	visibility = 2
 	evolution = "commodity"
 	x = 1
 	description = "Allows Code Pipeline to access the code."
+	color = "red"
 }
 
 connector {
 	from = "user"
 	to   = "vcs"
-	label = ""
-	color = "black"
-	type = "normal"
 }
 
 connector {
 	from = "vcs"
 	to   = "code_commit"
-	label = ""
 	color = "red"
 	type = "change-inertia"
 }
 ----
 
+== Roadmap
+
+* Looking into how to leverage HCL's extra features, in particular being able to reference a previous node for relative positioning:
++
+----
+node user {
+	...
+	x = 1
+}
+node vcs {
+	...
+	x = node.user.x + 1
+}
+----
++
+It will allow moving groups of elements within the maps and even exporting/importing them to/from other maps and having to adjust only the anchor node absolute position.
+
+* Make the node label optional, read the node ID if not present and title case it (configurable?).
+
+* Add an optional leyend box indicating the types of elements used in the map.
+
+* Better looks overall. Cleaner code.
+
+* Allow specifying node, connector and grid font sizes independently.
+
+* Arch type connector.
+
 == License
 
 This file is part of go-wardley.
 
-Copyright (C) 2019  David Gamba Rios
+Copyright (C) 2019-2020  David Gamba Rios
 
 This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this

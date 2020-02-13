@@ -1,9 +1,9 @@
-# size {
-# 	width     = 1000
-# 	height    = 1000
-# 	margin    = 20
-# 	font_size = 9
-# }
+size {
+	width     = 1280
+	height    = 768
+	margin    = 40
+	font_size = 9
+}
 
 # leyend {
 #   node {
@@ -46,7 +46,6 @@ node vcs {
 
 node code_commit {
   label = "Code Commit Mirror"
-	fill  = "white"
 	color = "red"
 	visibility = 2
 	evolution = "commodity"
@@ -86,7 +85,6 @@ node ci_cd {
 
 node code_pipeline {
   label = "Code Pipeline"
-	fill  = "white"
 	color = "red"
 	visibility = 4
 	evolution = "commodity"
@@ -96,7 +94,6 @@ node code_pipeline {
 
 node tooling {
   label = "Tooling"
-	fill  = "white"
 	color = "blue"
 	visibility = 4
 	evolution = "custom"
@@ -137,23 +134,16 @@ node terraform_v012 {
 connector {
 	from = "user"
 	to   = "deployment_script"
-	label = ""
-	color = "black"
-	type = "normal"
 }
 
 connector {
 	from = "user"
 	to   = "vcs"
-	label = ""
-	color = "black"
-	type = "normal"
 }
 
 connector {
 	from = "vcs"
 	to   = "code_commit"
-	label = ""
 	color = "red"
 	type = "change-inertia"
 }
@@ -161,23 +151,17 @@ connector {
 connector {
 	from = "vcs"
 	to   = "ci_cd"
-	label = ""
-	color = "black"
-	type = "normal"
 }
 
 connector {
 	from = "code_commit"
 	to   = "code_pipeline"
-	label = ""
 	color = "red"
-	type = "normal"
 }
 
 connector {
 	from = "ci_cd"
 	to   = "code_pipeline"
-	label = ""
 	color = "red"
 	type = "change-inertia"
 }
@@ -185,7 +169,6 @@ connector {
 connector {
 	from = "deployment_script"
 	to   = "rest_based_deployment"
-	label = ""
 	color = "red"
 	type = "change-inertia"
 }
@@ -194,30 +177,23 @@ connector {
 	from = "tooling"
 	to   = "ansible"
 	label = "EC2 instance provisioning"
-	color = "black"
 	type = "bold"
 }
 
 connector {
 	from = "tooling"
 	to   = "terraform_v011"
-	label = ""
-	color = "black"
-	type = "normal"
 }
 
 connector {
 	from = "tooling"
 	to   = "terraform_v012"
-	label = ""
 	color = "red"
-	type = "normal"
 }
 
 connector {
 	from = "ansible"
 	to   = "terraform_v011"
-	label = ""
 	color = "black"
 	type = "change"
 }
@@ -225,7 +201,6 @@ connector {
 connector {
 	from = "terraform_v011"
 	to   = "terraform_v012"
-	label = ""
 	color = "red"
 	type = "change-inertia"
 }

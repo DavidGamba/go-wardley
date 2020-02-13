@@ -1,6 +1,6 @@
 // This file is part of go-wardley.
 //
-// Copyright (C) 2019  David Gamba Rios
+// Copyright (C) 2019-2020  David Gamba Rios
 //
 // This Source Code Form is subject to the terms of the Mozilla Public
 // License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -15,48 +15,49 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/DavidGamba/go-getoptions"
 	"github.com/DavidGamba/go-wardley/hcl"
 	svg "github.com/ajstarks/svgo"
+	"github.com/fsnotify/fsnotify"
 )
+
+// BuildMetadata - Provides the metadata part of the version information.
+var BuildMetadata string = "dev"
+
+var version string = "0.2.0"
 
 var logger = log.New(ioutil.Discard, "", log.LstdFlags)
 
 // Show guides in drawing
 var showGuides bool
 
-// Serve the drawing at localhost:8080
-var serve bool
-
 // Keeps count of connect path IDs
 var connectID int
 
-var outputFile string
-
 var canvas *svg.SVG
 
-var inputData *hcl.Map
-
-var inputFile string
-
-var width, height, margin int
-
 func main() {
+	var inputFile, outputFile string
+
 	opt := getoptions.New()
 	opt.Bool("help", false, opt.Alias("?"))
-	opt.Bool("debug", false)
+	opt.Bool("debug", false, opt.Description("Show debug logs"))
+	opt.Bool("serve", false, opt.Description("Serve the drawing at localhost:8080"))
+	opt.Bool("version", false, opt.Alias("V"), opt.Description("Print version information"))
+	opt.Bool("watch", false, opt.Description("Watch file for changes"))
 	opt.BoolVar(&showGuides, "guides", false, opt.Description("Show margins, limits and other guides in drawing"))
-	opt.BoolVar(&serve, "serve", false, opt.Description("Serve the drawing at localhost:8080"))
-	opt.StringVar(&outputFile, "output", "map.svg", opt.Description("Map svg output file"))
-	opt.StringVar(&inputFile, "file", "map.hcl", opt.Description("Map input file"))
-	opt.IntVar(&width, "width", 1280, opt.Description("Map width"))
-	opt.IntVar(&height, "height", 768, opt.Description("Map height"))
-	opt.IntVar(&margin, "margin", 40, opt.Description("Map margin"))
+	opt.StringVar(&inputFile, "file", "", opt.Description("Map input file"), opt.Required(""))
+	opt.StringVar(&outputFile, "output", "", opt.Description("Map svg output file, by default replaces input file extension to .svg"))
 	remaining, err := opt.Parse(os.Args[1:])
 	if opt.Called("help") {
 		fmt.Println(opt.Help())
+		os.Exit(1)
+	}
+	if opt.Called("version") {
+		fmt.Printf("Version: %s+%s\n", version, BuildMetadata)
 		os.Exit(1)
 	}
 	if err != nil {
@@ -67,48 +68,137 @@ func main() {
 		logger.SetOutput(os.Stderr)
 	}
 	logger.Println(remaining)
-	err = realMain()
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
-		os.Exit(1)
+
+	if opt.Called("serve") {
+		fmt.Printf("Serving content on: http://localhost:8080\n")
+		serveFile(inputFile)
+		os.Exit(0)
+	}
+
+	if opt.Called("watch") {
+		absFile, err := filepath.Abs(inputFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: failed to get Absolute path from input file '%s': %s\n", inputFile, err)
+			os.Exit(1)
+		}
+		watcher, err := fsnotify.NewWatcher()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: failed to stablish watcher: %s\n", err)
+			os.Exit(1)
+		}
+		defer watcher.Close()
+
+		done := make(chan bool)
+		go func() {
+			for {
+				select {
+				case event, ok := <-watcher.Events:
+					if !ok {
+						return
+					}
+					logger.Printf("watcher event: %s\n", event.String())
+					if event.Name == absFile && event.Op&fsnotify.Write == fsnotify.Write {
+						err := render(absFile, outputFile)
+						if err != nil {
+							fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
+						}
+					}
+				case err, ok := <-watcher.Errors:
+					if !ok {
+						return
+					}
+					logger.Printf("Watcher error: %s\n", err)
+				}
+			}
+		}()
+
+		// Vim deletes the file when saving it making fsnotify loose the pointer to it.
+		// Have to watch the dir.
+		fmt.Printf("Starting watcher on: %s\n", filepath.Dir(absFile))
+		err = watcher.Add(filepath.Dir(absFile))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: watcher error: %s\n", err)
+			os.Exit(1)
+		}
+		err = render(absFile, outputFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
+		}
+		<-done
+	} else {
+		err := render(inputFile, outputFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
+			os.Exit(1)
+		}
 	}
 }
 
-func realMain() error {
-	m, err := hcl.ParseHCLFile(inputFile)
+func render(inputFile, outputFile string) error {
+	m, err := parseInputFile(inputFile)
 	if err != nil {
 		return err
 	}
-	inputData = m
-
-	ofh, err := os.Create(outputFile)
+	if outputFile == "" {
+		outputFile = strings.Replace(inputFile, filepath.Ext(inputFile), ".svg", 1)
+		logger.Printf("output file: %s\n", outputFile)
+	}
+	err = renderFile(m, outputFile)
 	if err != nil {
 		return err
-	}
-	defer ofh.Close()
-	drawing(ofh)
-	ofh.Close()
-	if serve {
-		http.Handle("/", http.HandlerFunc(drawHandler))
-		err := http.ListenAndServe(":8080", nil)
-		if err != nil {
-			return err
-		}
 	}
 	return nil
 }
 
-func drawHandler(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Content-Type", "image/svg+xml")
-	drawing(w)
+func parseInputFile(name string) (*hcl.Map, error) {
+	parser, f, err := hcl.ParseHCLFile(os.Stderr, name)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read '%s': %w", name, err)
+	}
+	m, err := hcl.DecodeMap(os.Stderr, parser, f)
+	if err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
-func drawing(w io.Writer) {
+func renderFile(m *hcl.Map, outputFile string) error {
+	ofh, err := os.Create(outputFile)
+	if err != nil {
+		return fmt.Errorf("failed to write to '%s': %w", outputFile, err)
+	}
+	defer ofh.Close()
+	drawing(ofh, m)
+	fmt.Printf("Updated file: %s\n", outputFile)
+	return nil
+}
+
+func serveFile(inputFile string) error {
+	http.Handle("/", http.HandlerFunc(drawHandler(inputFile)))
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func drawHandler(inputFile string) func(w http.ResponseWriter, req *http.Request) {
+	return func(w http.ResponseWriter, req *http.Request) {
+		m, err := parseInputFile(inputFile)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "ERROR: %s\n", err)
+		}
+		w.Header().Set("Content-Type", "image/svg+xml")
+		drawing(w, m)
+	}
+}
+
+func drawing(w io.Writer, m *hcl.Map) {
 	canvas = svg.New(w)
-	canvas.Start(width, height)
+	canvas.Start(m.Size.Width, m.Size.Height)
 	canvas.Gstyle("font-family:sans-serif")
-	grid(canvas, margin, width, height)
-	canvas.Translate(margin*2, height-margin*2)
+	grid(canvas, m.Size.Margin, m.Size.Width, m.Size.Height, m.Size.FontSize+2)
+	canvas.Translate(m.Size.Margin*2, m.Size.Height-m.Size.Margin*2)
 	canvas.Marker("connector-arrow", 17, 3, 12, 10, `orient="auto"`)
 	canvas.Path("M0,0 L0,6 L12,3 z")
 	canvas.MarkerEnd()
@@ -116,8 +206,8 @@ func drawing(w io.Writer) {
 	canvas.Path("M-5,20 L-5,-20 L5,-20 L5,20")
 	canvas.MarkerEnd()
 
-	nodes := inputData.Nodes
-	connectors := inputData.Connectors
+	nodes := m.Nodes
+	connectors := m.Connectors
 
 	maxGenesis, maxCustom, maxProduct, maxCommodity := 0, 0, 0, 0
 	maxY := 0
@@ -160,10 +250,10 @@ func drawing(w io.Writer) {
 			fmt.Fprintf(os.Stderr, "ERROR: couldn't find node '%s'\n", c.To)
 			continue
 		}
-		connect(c, a, b)
+		connect(c, a, b, m.Size.FontSize)
 	}
 	for _, n := range nodes {
-		DrawNode(n)
+		DrawNode(n, m.Size.FontSize)
 	}
 	canvas.Gend()
 	canvas.Gend()
@@ -199,8 +289,7 @@ func NodeXY(n *hcl.Node, maxGenesis, maxCustom, maxProduct, maxCommodity, maxY i
 }
 
 // DrawNode -
-func DrawNode(n *hcl.Node) {
-	nodeFontSize := 9
+func DrawNode(n *hcl.Node, fontSize int) {
 	canvas.Gstyle("text-shadow: 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white")
 	if n.Description != "" {
 		canvas.Title(n.Description)
@@ -210,13 +299,12 @@ func DrawNode(n *hcl.Node) {
 	canvas.Circle(n.X, n.Y, 5, fmt.Sprintf("fill:%s;stroke:%s", n.Fill, n.Color))
 	// canvas.Text(n.X+10, n.Y+3, n.Label, fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:black;text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white", nodeFontSize))
 	// canvas.Gstyle("text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white")
-	canvas.Textlines(n.X+8, n.Y+10, strings.Split(n.Label, "\n"), nodeFontSize, nodeFontSize+3, "black", "left")
+	canvas.Textlines(n.X+8, n.Y+10, strings.Split(n.Label, "\n"), fontSize, fontSize+3, "black", "left")
 	canvas.Gend()
 
 }
 
-func connect(c *hcl.Connector, a, b *hcl.Node) {
-	nodeFontSize := 9
+func connect(c *hcl.Connector, a, b *hcl.Node, fontSize int) {
 	connectID++
 
 	// Calculate midpoints
@@ -250,16 +338,13 @@ func connect(c *hcl.Connector, a, b *hcl.Node) {
 	y += 10
 
 	// if strings.Contains(c.Label, "\n") {
-	canvas.Textlines(x, y, strings.Split(c.Label, "\n"), nodeFontSize, nodeFontSize+3, "black", "left")
+	canvas.Textlines(x, y, strings.Split(c.Label, "\n"), fontSize, fontSize+3, "black", "left")
 	// } else {
 	// 	s.Textpath(c.Label, fmt.Sprintf("#%d", connectID), `x="10" y="-5"`, fmt.Sprintf("text-align:left;font-size:%dpx;fill:black", nodeFontSize))
 	// }
 }
 
-func grid(s *svg.SVG, margin, width, height int) {
-	// TODO: Variable font size based on width and height
-	fontSize := 12
-
+func grid(s *svg.SVG, margin, width, height, fontSize int) {
 	// Grid
 	//   X
 	xLenght := width - margin*4

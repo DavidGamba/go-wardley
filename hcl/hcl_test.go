@@ -34,7 +34,7 @@ func TestDecodeMap(t *testing.T) {
 				x = 1 
 			}`, &Map{
 			Size:  &Size{Width: 1280, Height: 768, Margin: 40, FontSize: 12},
-			Nodes: []*Node{&Node{ID: "id", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 1, Fill: "white", Color: "black"}},
+			Nodes: []*Node{{ID: "id", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 1, Fill: "white", Color: "black"}},
 		}},
 		{"connector", `connector {
 				label = "label"
@@ -42,7 +42,7 @@ func TestDecodeMap(t *testing.T) {
 				from = "from"
 			}`, &Map{
 			Size:       &Size{Width: 1280, Height: 768, Margin: 40, FontSize: 12},
-			Connectors: []*Connector{&Connector{Label: "label", To: "to", From: "from", Color: "black", Type: "normal"}},
+			Connectors: []*Connector{{Label: "label", To: "to", From: "from", Color: "black", Type: "normal"}},
 		}},
 		{"all", `node id {
 				label = "label"
@@ -63,10 +63,10 @@ func TestDecodeMap(t *testing.T) {
 			}`, &Map{
 			Size: &Size{Width: 1280, Height: 768, Margin: 40, FontSize: 12},
 			Nodes: []*Node{
-				&Node{ID: "id", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 1, Fill: "white", Color: "black"},
-				&Node{ID: "id2", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 1, Fill: "white", Color: "black"},
+				{ID: "id", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 1, Fill: "white", Color: "black"},
+				{ID: "id2", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 1, Fill: "white", Color: "black"},
 			},
-			Connectors: []*Connector{&Connector{Label: "label", To: "to", From: "from", Color: "black", Type: "normal"}},
+			Connectors: []*Connector{{Label: "label", To: "to", From: "from", Color: "black", Type: "normal"}},
 		}},
 	}
 	for _, test := range tests {

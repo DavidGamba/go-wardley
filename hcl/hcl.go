@@ -90,14 +90,8 @@ var mapDefaults = Map{
 func ParseHCL(w io.Writer, data []byte, filename string) (*hclparse.Parser, *hcl.File, error) {
 	parser := hclparse.NewParser()
 	f, diags := parser.ParseHCL(data, filename)
-	if diags.HasErrors() {
-		wr := hcl.NewDiagnosticTextWriter(
-			w,              // writer to send messages to
-			parser.Files(), // the parser's file cache, for source snippets
-			100,            // wrapping width
-			true,           // generate colored/highlighted output
-		)
-		wr.WriteDiagnostics(diags)
+	err := handleDiags(parser, diags, w)
+	if err != nil {
 		return parser, f, fmt.Errorf("failure during input configuration parsing")
 	}
 	return parser, f, nil
@@ -106,6 +100,14 @@ func ParseHCL(w io.Writer, data []byte, filename string) (*hclparse.Parser, *hcl
 func ParseHCLFile(w io.Writer, filename string) (*hclparse.Parser, *hcl.File, error) {
 	parser := hclparse.NewParser()
 	f, diags := parser.ParseHCLFile(filename)
+	err := handleDiags(parser, diags, w)
+	if err != nil {
+		return parser, f, fmt.Errorf("failure during input configuration parsing")
+	}
+	return parser, f, nil
+}
+
+func handleDiags(parser *hclparse.Parser, diags hcl.Diagnostics, w io.Writer) error {
 	if diags.HasErrors() {
 		wr := hcl.NewDiagnosticTextWriter(
 			w,              // writer to send messages to
@@ -114,9 +116,9 @@ func ParseHCLFile(w io.Writer, filename string) (*hclparse.Parser, *hcl.File, er
 			true,           // generate colored/highlighted output
 		)
 		wr.WriteDiagnostics(diags)
-		return parser, f, fmt.Errorf("failure during input configuration parsing")
+		return fmt.Errorf("errors found")
 	}
-	return parser, f, nil
+	return nil
 }
 
 func DecodeMap(w io.Writer, parser *hclparse.Parser, f *hcl.File) (*Map, error) {
@@ -129,17 +131,12 @@ func DecodeMap(w io.Writer, parser *hclparse.Parser, f *hcl.File) (*Map, error) 
 	// TODO: Still using gohcl instead of hcldec
 	// See: https://github.com/zclconf/go-cty/issues/38
 	diags := gohcl.DecodeBody(f.Body, ctx, &mapDetails)
-	if diags.HasErrors() {
-		wr := hcl.NewDiagnosticTextWriter(
-			w,              // writer to send messages to
-			parser.Files(), // the parser's file cache, for source snippets
-			100,            // wrapping width
-			true,           // generate colored/highlighted output
-		)
-		wr.WriteDiagnostics(diags)
+	err := handleDiags(parser, diags, w)
+	if err != nil {
 		return nil, fmt.Errorf("failure during decoding")
 	}
-	err := mergo.Merge(&mapDetails, mapDefaults)
+
+	err = mergo.Merge(&mapDetails, mapDefaults)
 	if err != nil {
 		return nil, fmt.Errorf("failure calculating map defaults: %w", err)
 	}

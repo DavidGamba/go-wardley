@@ -58,7 +58,13 @@ var input = `node id {
 				label = "label"
 				visibility = 1
 				evolution = "custom"
-				x = id.x + 1
+				x = node.id.x + 1
+			}
+			node id3 {
+				label = "label"
+				visibility = 1
+				evolution = "custom"
+				x = node.id2.x + 1
 			}`
 
 type Map struct {
@@ -104,6 +110,7 @@ func realMain() error {
 	nodeType := cty.Object(map[string]cty.Type{
 		"x": cty.Number,
 	})
+	fmt.Printf("ctx: %#v\n", ctx)
 
 	for k, block := range content.Blocks {
 		fmt.Println("-------------------------------------------------")
@@ -121,12 +128,28 @@ func realMain() error {
 				return err
 			}
 			fmt.Printf("node: %#v\n", node)
+
 			v, err := gocty.ToCtyValue(node, nodeType)
 			if err != nil {
 				return err
 			}
 			fmt.Printf("v: %#v\n", v)
-			ctx.Variables[block.Labels[0]] = v
+
+			var m map[string]cty.Value
+			n, ok := ctx.Variables["node"]
+			if !ok {
+				m = map[string]cty.Value{
+					block.Labels[0]: v,
+				}
+			} else {
+				fmt.Printf("n: %#v\n", n)
+				fmt.Printf("n: %#v\n", n.AsValueMap())
+				m = n.AsValueMap()
+				fmt.Printf("m: %#v\n", m)
+				m[block.Labels[0]] = v
+			}
+			fmt.Printf("m: %#v\n", m)
+			ctx.Variables["node"] = cty.MapVal(m)
 			fmt.Printf("ctx: %#v\n", ctx)
 		}
 	}

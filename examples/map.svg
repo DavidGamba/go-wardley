@@ -13,15 +13,15 @@
 <line x1="360" y1="688" x2="360" y2="80" style="fill:none;stroke:gray;stroke-dasharray:1,10" />
 <line x1="640" y1="688" x2="640" y2="80" style="fill:none;stroke:gray;stroke-dasharray:1,10" />
 <line x1="920" y1="688" x2="920" y2="80" style="fill:none;stroke:gray;stroke-dasharray:1,10" />
-<text x="80" y="728" style="text-anchor:left;font-size:12px;fill:black" >Genesis</text>
-<text x="360" y="728" style="text-anchor:left;font-size:12px;fill:black" >Custom</text>
-<text x="640" y="728" style="text-anchor:left;font-size:12px;fill:black" >Product (+rental)</text>
-<text x="920" y="728" style="text-anchor:left;font-size:12px;fill:black" >Commodity (+utility)</text>
-<text x="1100" y="683" style="text-anchor:left;font-size:14px;fill:black;font-weight:bold;font-family:serif" >Evolution</text>
+<text x="80" y="728" style="text-anchor:left;font-size:11px;fill:black" >Genesis</text>
+<text x="360" y="728" style="text-anchor:left;font-size:11px;fill:black" >Custom</text>
+<text x="640" y="728" style="text-anchor:left;font-size:11px;fill:black" >Product (+rental)</text>
+<text x="920" y="728" style="text-anchor:left;font-size:11px;fill:black" >Commodity (+utility)</text>
+<text x="1100" y="683" style="text-anchor:left;font-size:13px;fill:black;font-weight:bold;font-family:serif" >Evolution</text>
 <g transform="translate(80,688) rotate(270)">
-<text x="0" y="-5" style="text-anchor:top;font-size:12px;fill:black" >Invisible</text>
-<text x="558" y="-5" style="text-anchor:top;font-size:12px;fill:black" >Visible</text>
-<text x="508" y="19" style="text-anchor:left;font-size:14px;fill:black;font-weight:bold;font-family:serif" >Value Chain</text>
+<text x="0" y="-5" style="text-anchor:top;font-size:11px;fill:black" >Invisible</text>
+<text x="558" y="-5" style="text-anchor:top;font-size:11px;fill:black" >Visible</text>
+<text x="508" y="18" style="text-anchor:left;font-size:13px;fill:black;font-weight:bold;font-family:serif" >Value Chain</text>
 </g>
 <g transform="translate(80,688)">
 <marker id="connector-arrow" refX="17" refY="3" markerWidth="12" markerHeight="10" orient="auto" >

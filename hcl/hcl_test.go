@@ -31,10 +31,10 @@ func TestDecodeMap(t *testing.T) {
 				label = "label"
 				visibility = 1
 				evolution = "custom"
-				x = 1 
+				x = 1
 			}`, &Map{
 			Size:  &Size{Width: 1280, Height: 768, Margin: 40, FontSize: 12},
-			Nodes: []*Node{&Node{ID: "id", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 1, Fill: "white", Color: "black"}},
+			Nodes: []*Node{{ID: "id", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 1, Fill: "white", Color: "black"}},
 		}},
 		{"connector", `connector {
 				label = "label"
@@ -42,19 +42,19 @@ func TestDecodeMap(t *testing.T) {
 				from = "from"
 			}`, &Map{
 			Size:       &Size{Width: 1280, Height: 768, Margin: 40, FontSize: 12},
-			Connectors: []*Connector{&Connector{Label: "label", To: "to", From: "from", Color: "black", Type: "normal"}},
+			Connectors: []*Connector{{Label: "label", To: "to", From: "from", Color: "black", Type: "normal"}},
 		}},
 		{"all", `node id {
 				label = "label"
 				visibility = 1
 				evolution = "custom"
-				x = 1 
+				x = 1
 			}
 			node id2 {
 				label = "label"
 				visibility = 1
 				evolution = "custom"
-				x = 1 
+				x = 1
 			}
 			connector {
 				label = "label"
@@ -63,10 +63,41 @@ func TestDecodeMap(t *testing.T) {
 			}`, &Map{
 			Size: &Size{Width: 1280, Height: 768, Margin: 40, FontSize: 12},
 			Nodes: []*Node{
-				&Node{ID: "id", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 1, Fill: "white", Color: "black"},
-				&Node{ID: "id2", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 1, Fill: "white", Color: "black"},
+				{ID: "id", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 1, Fill: "white", Color: "black"},
+				{ID: "id2", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 1, Fill: "white", Color: "black"},
 			},
-			Connectors: []*Connector{&Connector{Label: "label", To: "to", From: "from", Color: "black", Type: "normal"}},
+			Connectors: []*Connector{{Label: "label", To: "to", From: "from", Color: "black", Type: "normal"}},
+		}},
+		{"references", `node id {
+				label = "label"
+				visibility = 1
+				evolution = "custom"
+				x = 1
+			}
+			node id2 {
+				label = "label"
+				visibility = node.id.visibility
+				evolution = "custom"
+				x = node.id.x + 1
+			}
+			node id3 {
+				label = "label"
+				visibility = node.id.visibility
+				evolution = "custom"
+				x = node.id2.x + 1
+			}
+			connector {
+				label = "label"
+				to = "to"
+				from = "from"
+			}`, &Map{
+			Size: &Size{Width: 1280, Height: 768, Margin: 40, FontSize: 12},
+			Nodes: []*Node{
+				{ID: "id", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 1, Fill: "white", Color: "black"},
+				{ID: "id2", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 2, Fill: "white", Color: "black"},
+				{ID: "id3", Label: "label", Visibility: 1, Evolution: "custom", EvolutionX: 3, Fill: "white", Color: "black"},
+			},
+			Connectors: []*Connector{{Label: "label", To: "to", From: "from", Color: "black", Type: "normal"}},
 		}},
 	}
 	for _, test := range tests {
@@ -90,7 +121,7 @@ func TestDecodeMap(t *testing.T) {
 				exp := new(bytes.Buffer)
 				spew.Fdump(out, mapDetails)
 				spew.Fdump(exp, test.expected)
-				t.Errorf("unexpected value:\n%s!=\n%s", out.String(), exp.String())
+				t.Fatalf("unexpected value:\n%s!=\n%s", out.String(), exp.String())
 			}
 		})
 	}

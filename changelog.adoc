@@ -1,5 +1,12 @@
 = Changelog
 
+== v0.3.0 WIP
+
+* Update HCL code to allow element references.
+It allows to reference a previous element in the next one.
+* Update README.
+* Update example.
+
 == v0.2.0
 
 * Add a changelog.

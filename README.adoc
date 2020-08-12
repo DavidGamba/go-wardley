@@ -23,23 +23,41 @@ $ ./go-wardley -f examples/map.hcl --watch
 Starting watcher on: examples
 Updated file: examples/map.svg
 Updated file: examples/map.svg
+
+# Serve the file on a webserver in localhost:8080 by default
+# Update the drawing by refreshing the page.
+$ ./go-wardley -f examples/map.hcl --serve
+Serving content on: http://localhost:8080
+$ ./go-wardley -f examples/map.hcl --serve 6060
+Serving content on: http://localhost:6060
 ----
 
 image::./examples/map.svg[]
 
 == Element types
 
+=== Size
+
+----
+size {
+	width     = 1280
+	height    = 768
+	margin    = 40
+	font_size = 9
+}
+----
+
 === Node
 
 ----
 node user {
-	label = "User"       # Required
-	visibility = 1       # Required
-	evolution = "custom" # Required
-	x = 1                # Required
+	label       = "User"        # Required
+	visibility  = 1             # Required
+	evolution   = "custom"      # Required
+	x           = 1             # Required
 	description = "Description"
-	fill  = "black"
-	color = "black"
+	fill        = "black"
+	color       = "black"
 }
 ----
 
@@ -49,11 +67,11 @@ node user {
 
 ----
 connector {
-	from = "user"         # Required
-	to   = "vcs"          # Required
+	from  = "user"        # Required
+	to    = "vcs"         # Required
 	label = "Description"
 	color = "black"
-	type = "normal"
+	type  = "normal"
 }
 ----
 
@@ -61,35 +79,36 @@ connector {
 
 == Example input
 
-A more extensive one in link:./examples/map.hcl[].
+A more extensive example can be found in link:./examples/map.hcl[].
 
 [source, hcl]
 ----
+# Anchor
 node user {
-	label = "User"
-	visibility = 1
-	evolution = "custom"
-	x = 1
+	label       = "User"
+	visibility  = 1
+	evolution   = "custom"
+	x           = 1
 	description = "User Description"
-	fill  = "black"
+	fill        = "black"
 }
 
 node vcs {
-	label = "On Prem VCS"
-	visibility = 2
-	evolution = "product"
-	x = 1
+	label       = "On Prem VCS"
+	visibility  = node.user.visibility + 1
+	evolution   = "product"
+	x           = 1
 	description = "On prem VCS"
-	fill  = "black"
+	fill        = "black"
 }
 
 node code_commit {
-	label = "Code Commit Mirror"
-	visibility = 2
-	evolution = "commodity"
-	x = 1
+	label       = "Code Commit Mirror"
+	visibility  = node.vcs.visibility
+	evolution   = "commodity"
+	x           = 1
 	description = "Allows Code Pipeline to access the code."
-	color = "red"
+	color       = "red"
 }
 
 connector {
@@ -106,21 +125,6 @@ connector {
 ----
 
 == Roadmap
-
-* Looking into how to leverage HCL's extra features, in particular being able to reference a previous node for relative positioning:
-+
-----
-node user {
-	...
-	x = 1
-}
-node vcs {
-	...
-	x = node.user.x + 1
-}
-----
-+
-It will allow moving groups of elements within the maps and even exporting/importing them to/from other maps and having to adjust only the anchor node absolute position.
 
 * Make the node label optional, read the node ID if not present and title case it (configurable?).
 

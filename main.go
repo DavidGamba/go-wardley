@@ -27,7 +27,7 @@ import (
 // BuildMetadata - Provides the metadata part of the version information.
 var BuildMetadata string = "dev"
 
-var version string = "0.2.0"
+var version string = "0.3.0"
 
 var logger = log.New(ioutil.Discard, "", log.LstdFlags)
 
@@ -41,17 +41,18 @@ var canvas *svg.SVG
 
 func main() {
 	var inputFile, outputFile string
+	var port int
 
 	opt := getoptions.New()
 	opt.Bool("help", false, opt.Alias("?"))
 	opt.Bool("debug", false, opt.Description("Show debug logs"))
-	opt.Bool("serve", false, opt.Description("Serve the drawing at localhost:8080"))
+	opt.IntVarOptional(&port, "serve", 8080, opt.Description("Serve the drawing at localhost:<port>"), opt.ArgName("port"))
 	opt.Bool("version", false, opt.Alias("V"), opt.Description("Print version information"))
 	opt.Bool("watch", false, opt.Description("Watch file for changes"))
 	opt.BoolVar(&showGuides, "guides", false, opt.Description("Show margins, limits and other guides in drawing"))
-	opt.StringVar(&inputFile, "file", "", opt.Description("Map input file"), opt.Required(""))
-	opt.StringVar(&outputFile, "output", "", opt.Description("Map svg output file, by default replaces input file extension to .svg"))
-	remaining, err := opt.Parse(os.Args[1:])
+	opt.StringVar(&inputFile, "file", "", opt.Description("Map input file"), opt.Required(""), opt.ArgName("filename"))
+	opt.StringVar(&outputFile, "output", "", opt.Description("Map svg output file, by default replaces input file extension to .svg"), opt.ArgName("filename"))
+	_, err := opt.Parse(os.Args[1:])
 	if opt.Called("help") {
 		fmt.Println(opt.Help())
 		os.Exit(1)
@@ -66,12 +67,12 @@ func main() {
 	}
 	if opt.Called("debug") {
 		logger.SetOutput(os.Stderr)
+		hcl.Logger.SetOutput(os.Stderr)
 	}
-	logger.Println(remaining)
 
 	if opt.Called("serve") {
-		fmt.Printf("Serving content on: http://localhost:8080\n")
-		serveFile(inputFile)
+		fmt.Printf("Serving content on: http://localhost:%d\n", port)
+		serveFile(inputFile, port)
 		os.Exit(0)
 	}
 
@@ -173,9 +174,9 @@ func renderFile(m *hcl.Map, outputFile string) error {
 	return nil
 }
 
-func serveFile(inputFile string) error {
+func serveFile(inputFile string, port int) error {
 	http.Handle("/", http.HandlerFunc(drawHandler(inputFile)))
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
 		return err
 	}
@@ -234,7 +235,6 @@ func drawing(w io.Writer, m *hcl.Map) {
 	for _, c := range connectors {
 		var a, b *hcl.Node
 		for _, n := range nodes {
-			logger.Printf("node id: %s\n", n.ID)
 			if n.ID == c.From {
 				a = n
 			}

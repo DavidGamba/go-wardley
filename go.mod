@@ -9,4 +9,7 @@ require (
 	github.com/fsnotify/fsnotify v1.4.7
 	github.com/hashicorp/hcl/v2 v2.6.0
 	github.com/zclconf/go-cty v1.5.0
+
+	// workaround for error: //go:linkname must refer to declared function or variable
+	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 // indirect
 )

@@ -8,7 +8,7 @@ package wardley
 }
 
 #node: {
-  id: =~"^[a-z][a-z0-9_-]*$"
+	id: =~"^[a-z][a-z0-9_-]*$"
 	label:        string | *id
 	visibility:   uint
 	evolution:    "genesis" | "custom" | "product" | "commodity"
@@ -42,5 +42,12 @@ n2: #node & {
 	label: "hola"
 	visibility: 1
 	x: 1
+	evolution: "product"
+}
+
+n3: #node & {
+	id: "n3"
+	visibility: n2.visibility + 1
+	x: n2.x + 1
 	evolution: "product"
 }

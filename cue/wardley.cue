@@ -1,31 +1,5 @@
 package wardley
 
-#size: {
-	width:     uint | *1280
-	height:    uint | *768
-	margin:    uint | *40
-	font_size: uint | *12
-}
-
-#node: {
-	id: =~"^[a-z][a-z0-9_-]*$"
-	label:        string | *id
-	visibility:   uint
-	evolution:    "genesis" | "custom" | "product" | "commodity"
-	x:            uint
-	description?: string
-	fill:         string | *"white"
-	color:        string | *"black"
-}
-
-#connector: {
-	from:   #node.id
-	to:     #node.id
-	label?: string
-	color:  string | *"black"
-	type:   *"normal" | "bold" | "change" | "change-inertia"
-}
-
 s: #size & {
 	font_size: 3
 }
@@ -45,9 +19,21 @@ n2: #node & {
 	evolution: "product"
 }
 
+c1c2: #connector & {
+	from: n1.id
+	to: n2.id
+	label: "en -> es"
+}
+
 n3: #node & {
 	id: "n3"
 	visibility: n2.visibility + 1
 	x: n2.x + 1
 	evolution: "product"
+}
+
+#bodySchema & {
+size: s
+nodes: [n1, n2, n3]
+connectors: [c1c2]
 }

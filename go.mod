@@ -3,7 +3,8 @@ module github.com/DavidGamba/go-wardley
 go 1.13
 
 require (
-	github.com/DavidGamba/go-getoptions v0.20.2
+	cuelang.org/go v0.4.3
+	github.com/DavidGamba/go-getoptions v0.26.0
 	github.com/ajstarks/svgo v0.0.0-20191124160048-bd5c74aaa11c
 	github.com/davecgh/go-spew v1.1.1
 	github.com/fsnotify/fsnotify v1.4.7

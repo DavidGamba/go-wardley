@@ -8,7 +8,7 @@ package wardley
 }
 
 #node: {
-	id: =~"^[a-z][a-z0-9_-]*$"
+	id:           string & =~"^[a-z][a-z0-9_-]*$"
 	label:        string | *id
 	visibility:   uint
 	evolution:    "genesis" | "custom" | "product" | "commodity"
@@ -19,6 +19,7 @@ package wardley
 }
 
 #connector: {
+	id:     string & =~"^[a-z][a-z0-9_-]*$"
 	from:   #node.id
 	to:     #node.id
 	label?: string
@@ -26,8 +27,8 @@ package wardley
 	type:   *"normal" | "bold" | "change" | "change-inertia"
 }
 
-#bodySchema: {
+#Schema: {
 	size: #size
-	nodes: [...#node]
-	connectors: [...#connector]
+	node: [ID=_]: #node & {id: ID}
+	connector: [ID=_]: #connector & {id: ID}
 }

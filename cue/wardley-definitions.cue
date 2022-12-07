@@ -1,15 +1,17 @@
 package wardley
 
-#size: {
+import "strings"
+
+#Size: {
 	width:     uint | *1280
 	height:    uint | *768
 	margin:    uint | *40
 	font_size: uint | *12
 }
 
-#node: {
-	id:           string & =~"^[a-z][a-z0-9_-]*$"
-	label:        string | *id
+#Node: {
+	id:           string & =~"^[a-zA-Z][a-zA-Z0-9_-]*$"
+	label:        string | *strings.ToTitle(strings.Replace(id, "_", " ", -1))
 	visibility:   uint
 	evolution:    "genesis" | "custom" | "product" | "commodity"
 	x:            uint
@@ -18,17 +20,17 @@ package wardley
 	color:        string | *"black"
 }
 
-#connector: {
-	id:     string & =~"^[a-z][a-z0-9_-]*$"
-	from:   #node.id
-	to:     #node.id
+#Connector: {
+	id:     string & =~"^[a-zA-Z][a-zA-Z0-9_-]*$"
+	from:   #Node.id
+	to:     #Node.id
 	label?: string
 	color:  string | *"black"
 	type:   *"normal" | "bold" | "change" | "change-inertia"
 }
 
 #Schema: {
-	size: #size
-	node: [ID=_]: #node & {id: ID}
-	connector: [ID=_]: #connector & {id: ID}
+	size: #Size
+	node: [ID=_]:      #Node & {id:      ID}
+	connector: [ID=_]: #Connector & {id: ID}
 }

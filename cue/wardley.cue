@@ -18,16 +18,15 @@ map: #Schema & {
 		evolution:  "product"
 	}
 
-	node: n3: {
+	node: n3_is_coOL: {
 		visibility: node.n2.visibility + 1
 		x:          node.n2.x + 1
 		evolution:  "product"
 	}
 
-	connector: c1c2: {
-	 from: node.n1.id
-	 to: node.n2.id
-	 label: "en -> es"
+	connector: n1n2: {
+		from:  node.n1.id
+		to:    node.n2.id
+		label: "en -> es"
 	}
 }
-

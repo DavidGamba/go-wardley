@@ -32,6 +32,6 @@ map: #Schema & {
 
 	connector: n2n3: {
 		from:  node.n2.id
-		to:    node.n3_is_coOL.id
+		to:    node.n_is_coOL.id
 	}
 }

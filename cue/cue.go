@@ -62,43 +62,29 @@ func Run(ctx context.Context, opt *getoptions.GetOpt, args []string) error {
 
 	configFilename := opt.Value("config").(string)
 
-	c := cuecontext.New()
-	schema, err := f.ReadFile("wardley-schema.cue")
+	schemaFilename := "wardley-schema.cue"
+	schemaFH, err := f.Open(schemaFilename)
 	if err != nil {
-		return fmt.Errorf("failed to read schema: %w", err)
+		return fmt.Errorf("failed to open '%s': %w", schemaFilename, err)
 	}
-	// compile our schema first
-	s := c.CompileBytes(schema)
+	defer schemaFH.Close()
 
-	configData, err := os.ReadFile(configFilename)
+	configFH, err := os.Open(configFilename)
 	if err != nil {
-		return fmt.Errorf("failed to read config file: %w", err)
+		return fmt.Errorf("failed to open '%s': %w", configFilename, err)
 	}
-	// compile our value with scope
-	v := c.CompileBytes(configData, cue.Scope(s))
-	if v.Err() != nil {
-		return fmt.Errorf("failed to compile config: %s", cueErrors.Details(v.Err(), nil))
-	}
-	err = v.Validate(
-		cue.Final(),
-		cue.Concrete(true),
-		cue.Definitions(true),
-		cue.Hidden(true),
-		cue.Optional(true),
-	)
-	if err != nil {
-		// TODO: We could print the line with the error by parsing the possitions response.
-		// Logger.Printf("possitions: %v\n", cueErrors.Positions(err))
-		return fmt.Errorf("failed config validation of file '%s': %s", configFilename, cueErrors.Details(err, nil))
-	}
+	defer configFH.Close()
 
 	w := Wardley{}
 
-	g := gocodec.New((*cue.Runtime)(c), nil)
-	err = g.Encode(v, &w)
+	err = Unmarshal([]CueConfigFile{
+		{schemaFH, schemaFilename},
+		{configFH, configFilename},
+	}, &w)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to unmarshal: %w", err)
 	}
+
 	fmt.Printf("map: %v\n", w)
 	pretty, err := json.MarshalIndent(w, "", "\t")
 	if err != nil {
@@ -106,14 +92,47 @@ func Run(ctx context.Context, opt *getoptions.GetOpt, args []string) error {
 	}
 	fmt.Printf("map: %v\n", string(pretty))
 
-	i, err := v.Fields()
-	if err != nil {
-		return fmt.Errorf("failed to get fields: %w", err)
+	return nil
+}
+
+type CueConfigFile struct {
+	Data io.Reader
+	Name string
+}
+
+func Unmarshal(configs []CueConfigFile, v any) error {
+	c := cuecontext.New()
+	var value cue.Value
+	for i, reader := range configs {
+		d, err := io.ReadAll(reader.Data)
+		if err != nil {
+			return fmt.Errorf("failed to read: %w", err)
+		}
+		if i == 0 {
+			value = c.CompileBytes(d, cue.Filename(reader.Name))
+		} else {
+			value = c.CompileBytes(d, cue.Filename(reader.Name), cue.Scope(value))
+		}
+		if value.Err() != nil {
+			return fmt.Errorf("failed to compile: %s", cueErrors.Details(value.Err(), nil))
+		}
 	}
-	for i.Next() {
-		fmt.Printf("value %s: %v\n", i.Value().Path(), i.Value())
+	err := value.Validate(
+		cue.Final(),
+		cue.Concrete(true),
+		cue.Definitions(true),
+		cue.Hidden(true),
+		cue.Optional(true),
+	)
+	if err != nil {
+		return fmt.Errorf("failed config validation: %s", cueErrors.Details(err, nil))
 	}
 
+	g := gocodec.New((*cue.Runtime)(c), nil)
+	err = g.Encode(value, &v)
+	if err != nil {
+		return fmt.Errorf("failed to encode cue values: %w", err)
+	}
 	return nil
 }
 

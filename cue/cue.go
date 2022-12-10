@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"embed"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -12,6 +13,7 @@ import (
 	"cuelang.org/go/cue"
 	"cuelang.org/go/cue/cuecontext"
 	cueErrors "cuelang.org/go/cue/errors"
+	"cuelang.org/go/encoding/gocode/gocodec"
 	"github.com/DavidGamba/go-getoptions"
 )
 
@@ -90,6 +92,20 @@ func Run(ctx context.Context, opt *getoptions.GetOpt, args []string) error {
 		return fmt.Errorf("failed config validation of file '%s': %s", configFilename, cueErrors.Details(err, nil))
 	}
 
+	w := Wardley{}
+
+	g := gocodec.New((*cue.Runtime)(c), nil)
+	err = g.Encode(v, &w)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("map: %v\n", w)
+	pretty, err := json.MarshalIndent(w, "", "\t")
+	if err != nil {
+		return err
+	}
+	fmt.Printf("map: %v\n", string(pretty))
+
 	i, err := v.Fields()
 	if err != nil {
 		return fmt.Errorf("failed to get fields: %w", err)
@@ -99,4 +115,39 @@ func Run(ctx context.Context, opt *getoptions.GetOpt, args []string) error {
 	}
 
 	return nil
+}
+
+type Wardley struct {
+	Map struct {
+		Size      Size
+		Node      map[string]Node
+		Connector map[string]Connector
+	}
+}
+
+type Size struct {
+	Width    int
+	Height   int
+	Margin   int
+	FontSize int `json:"font_size"`
+}
+
+type Node struct {
+	ID          string
+	Label       string
+	Visibility  int
+	Evolution   string
+	X           int
+	Description string
+	Fill        string
+	Color       string
+}
+
+type Connector struct {
+	ID    string
+	From  string
+	To    string
+	Label string
+	Color string
+	Type  string
 }

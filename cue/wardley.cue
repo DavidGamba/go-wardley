@@ -29,4 +29,9 @@ map: #Schema & {
 		to:    node.n2.id
 		label: "en -> es"
 	}
+
+	connector: n2n3: {
+		from:  node.n2.id
+		to:    node.n3_is_coOL.id
+	}
 }

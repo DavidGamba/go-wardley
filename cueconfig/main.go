@@ -87,12 +87,11 @@ func Run(ctx context.Context, opt *getoptions.GetOpt, args []string) error {
 		return fmt.Errorf("failed to unmarshal: %w", err)
 	}
 
-	fmt.Printf("map: %v\n", w)
 	pretty, err := json.MarshalIndent(w, "", "\t")
 	if err != nil {
 		return err
 	}
-	fmt.Printf("map: %v\n", string(pretty))
+	fmt.Printf("%v\n", string(pretty))
 
 	return nil
 }

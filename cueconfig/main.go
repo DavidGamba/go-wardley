@@ -17,7 +17,7 @@ import (
 	"github.com/DavidGamba/go-getoptions"
 )
 
-//go:embed wardley-schema.cue wardley-map.cue
+//go:embed wardley-schema.cue
 var f embed.FS
 
 var Logger = log.New(os.Stderr, "", log.LstdFlags)
@@ -71,14 +71,6 @@ func Run(ctx context.Context, opt *getoptions.GetOpt, args []string) error {
 	}
 	defer schemaFH.Close()
 	configs = append(configs, CueConfigFile{schemaFH, schemaFilename})
-
-	schemaMapFilename := "wardley-map.cue"
-	schemaMapFH, err := f.Open(schemaMapFilename)
-	if err != nil {
-		return fmt.Errorf("failed to open '%s': %w", schemaMapFilename, err)
-	}
-	defer schemaMapFH.Close()
-	configs = append(configs, CueConfigFile{schemaMapFH, schemaMapFilename})
 
 	for _, configFilename := range configFilenames {
 		configFH, err := os.Open(configFilename)
@@ -150,11 +142,9 @@ func Unmarshal(configs []CueConfigFile, v any) error {
 }
 
 type Wardley struct {
-	Map struct {
-		Size      Size
-		Node      map[string]Node
-		Connector map[string]Connector
-	}
+	Size      Size
+	Node      map[string]Node
+	Connector map[string]Connector
 }
 
 type Size struct {

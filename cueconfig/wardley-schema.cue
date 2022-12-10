@@ -28,9 +28,3 @@ import "strings"
 	color:  string | *"black"
 	type:   *"normal" | "bold" | "change" | "change-inertia"
 }
-
-#Schema: {
-	size: #Size
-	node: [ID=_]:      #Node & {id:      ID}
-	connector: [ID=_]: #Connector & {id: ID}
-}

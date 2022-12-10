@@ -17,7 +17,7 @@ import (
 	"github.com/DavidGamba/go-getoptions"
 )
 
-//go:embed wardley-schema.cue
+//go:embed wardley-schema.cue wardley-map.cue
 var f embed.FS
 
 var Logger = log.New(os.Stderr, "", log.LstdFlags)
@@ -31,7 +31,7 @@ func program(args []string) int {
 	opt.SetUnknownMode(getoptions.Pass)
 	opt.Bool("quiet", false, opt.GetEnv("QUIET"))
 	opt.SetCommandFn(Run)
-	opt.String("config", "", opt.Required())
+	opt.StringSlice("config", 1, 99, opt.Required())
 	opt.HelpCommand("help", opt.Alias("?"))
 	remaining, err := opt.Parse(args[1:])
 	if err != nil {
@@ -60,7 +60,9 @@ func program(args []string) int {
 func Run(ctx context.Context, opt *getoptions.GetOpt, args []string) error {
 	Logger.Printf("Parsing cue config")
 
-	configFilename := opt.Value("config").(string)
+	configFilenames := opt.Value("config").([]string)
+
+	configs := []CueConfigFile{}
 
 	schemaFilename := "wardley-schema.cue"
 	schemaFH, err := f.Open(schemaFilename)
@@ -68,19 +70,27 @@ func Run(ctx context.Context, opt *getoptions.GetOpt, args []string) error {
 		return fmt.Errorf("failed to open '%s': %w", schemaFilename, err)
 	}
 	defer schemaFH.Close()
+	configs = append(configs, CueConfigFile{schemaFH, schemaFilename})
 
-	configFH, err := os.Open(configFilename)
+	schemaMapFilename := "wardley-map.cue"
+	schemaMapFH, err := f.Open(schemaMapFilename)
 	if err != nil {
-		return fmt.Errorf("failed to open '%s': %w", configFilename, err)
+		return fmt.Errorf("failed to open '%s': %w", schemaMapFilename, err)
 	}
-	defer configFH.Close()
+	defer schemaMapFH.Close()
+	configs = append(configs, CueConfigFile{schemaMapFH, schemaMapFilename})
+
+	for _, configFilename := range configFilenames {
+		configFH, err := os.Open(configFilename)
+		if err != nil {
+			return fmt.Errorf("failed to open '%s': %w", configFilename, err)
+		}
+		defer configFH.Close()
+		configs = append(configs, CueConfigFile{configFH, configFilename})
+	}
 
 	w := Wardley{}
-
-	err = Unmarshal([]CueConfigFile{
-		{schemaFH, schemaFilename},
-		{configFH, configFilename},
-	}, &w)
+	err = Unmarshal(configs, &w)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal: %w", err)
 	}
@@ -102,20 +112,23 @@ type CueConfigFile struct {
 
 func Unmarshal(configs []CueConfigFile, v any) error {
 	c := cuecontext.New()
-	var value cue.Value
+	value := cue.Value{}
 	for i, reader := range configs {
 		d, err := io.ReadAll(reader.Data)
 		if err != nil {
 			return fmt.Errorf("failed to read: %w", err)
 		}
+		Logger.Printf("compiling %s\n", reader.Name)
+		var t cue.Value
 		if i == 0 {
-			value = c.CompileBytes(d, cue.Filename(reader.Name))
+			t = c.CompileBytes(d, cue.Filename(reader.Name))
 		} else {
-			value = c.CompileBytes(d, cue.Filename(reader.Name), cue.Scope(value))
+			t = c.CompileBytes(d, cue.Filename(reader.Name), cue.Scope(value))
 		}
-		if value.Err() != nil {
-			return fmt.Errorf("failed to compile: %s", cueErrors.Details(value.Err(), nil))
-		}
+		value = value.Unify(t)
+	}
+	if value.Err() != nil {
+		return fmt.Errorf("failed to compile: %s", cueErrors.Details(value.Err(), nil))
 	}
 	err := value.Validate(
 		cue.Final(),

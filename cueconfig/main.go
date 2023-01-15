@@ -10,10 +10,7 @@ import (
 	"log"
 	"os"
 
-	"cuelang.org/go/cue"
-	"cuelang.org/go/cue/cuecontext"
-	cueErrors "cuelang.org/go/cue/errors"
-	"cuelang.org/go/encoding/gocode/gocodec"
+	"github.com/DavidGamba/dgtools/cueutils"
 	"github.com/DavidGamba/go-getoptions"
 )
 
@@ -62,7 +59,7 @@ func Run(ctx context.Context, opt *getoptions.GetOpt, args []string) error {
 
 	configFilenames := opt.Value("config").([]string)
 
-	configs := []CueConfigFile{}
+	configs := []cueutils.CueConfigFile{}
 
 	schemaFilename := "wardley-schema.cue"
 	schemaFH, err := f.Open(schemaFilename)
@@ -70,7 +67,7 @@ func Run(ctx context.Context, opt *getoptions.GetOpt, args []string) error {
 		return fmt.Errorf("failed to open '%s': %w", schemaFilename, err)
 	}
 	defer schemaFH.Close()
-	configs = append(configs, CueConfigFile{schemaFH, schemaFilename})
+	configs = append(configs, cueutils.CueConfigFile{Data: schemaFH, Name: schemaFilename})
 
 	for _, configFilename := range configFilenames {
 		configFH, err := os.Open(configFilename)
@@ -78,11 +75,11 @@ func Run(ctx context.Context, opt *getoptions.GetOpt, args []string) error {
 			return fmt.Errorf("failed to open '%s': %w", configFilename, err)
 		}
 		defer configFH.Close()
-		configs = append(configs, CueConfigFile{configFH, configFilename})
+		configs = append(configs, cueutils.CueConfigFile{Data: configFH, Name: configFilename})
 	}
 
 	w := Wardley{}
-	err = Unmarshal(configs, &w)
+	err = cueutils.Unmarshal(configs, &w)
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal: %w", err)
 	}
@@ -93,50 +90,6 @@ func Run(ctx context.Context, opt *getoptions.GetOpt, args []string) error {
 	}
 	fmt.Printf("%v\n", string(pretty))
 
-	return nil
-}
-
-type CueConfigFile struct {
-	Data io.Reader
-	Name string
-}
-
-func Unmarshal(configs []CueConfigFile, v any) error {
-	c := cuecontext.New()
-	value := cue.Value{}
-	for i, reader := range configs {
-		d, err := io.ReadAll(reader.Data)
-		if err != nil {
-			return fmt.Errorf("failed to read: %w", err)
-		}
-		Logger.Printf("compiling %s\n", reader.Name)
-		var t cue.Value
-		if i == 0 {
-			t = c.CompileBytes(d, cue.Filename(reader.Name))
-		} else {
-			t = c.CompileBytes(d, cue.Filename(reader.Name), cue.Scope(value))
-		}
-		value = value.Unify(t)
-	}
-	if value.Err() != nil {
-		return fmt.Errorf("failed to compile: %s", cueErrors.Details(value.Err(), nil))
-	}
-	err := value.Validate(
-		cue.Final(),
-		cue.Concrete(true),
-		cue.Definitions(true),
-		cue.Hidden(true),
-		cue.Optional(true),
-	)
-	if err != nil {
-		return fmt.Errorf("failed config validation: %s", cueErrors.Details(err, nil))
-	}
-
-	g := gocodec.New((*cue.Runtime)(c), nil)
-	err = g.Encode(value, &v)
-	if err != nil {
-		return fmt.Errorf("failed to encode cue values: %w", err)
-	}
 	return nil
 }
 

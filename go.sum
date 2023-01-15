@@ -1,5 +1,7 @@
 cuelang.org/go v0.4.3 h1:W3oBBjDTm7+IZfCKZAmC8uDG0eYfJL4Pp/xbbCMKaVo=
 cuelang.org/go v0.4.3/go.mod h1:7805vR9H+VoBNdWFdI7jyDR3QLUPp4+naHfbcgp55HI=
+github.com/DavidGamba/dgtools/cueutils v0.0.0-20230115050243-05c26faed3fe h1:pcUs1+Vz68Oeqm8xV78OrP5n0KmmrnijgU1k+vAQqwE=
+github.com/DavidGamba/dgtools/cueutils v0.0.0-20230115050243-05c26faed3fe/go.mod h1:dIClBtDO8Z2+l/Vraqt1LalKHFXjp0RCFtiopIf7ZT8=
 github.com/DavidGamba/go-getoptions v0.26.0 h1:3Hy0o6xTYs9icM5uPNqqck5PyZm5lZWRIDH/n5SV2uw=
 github.com/DavidGamba/go-getoptions v0.26.0/go.mod h1:qLaLSYeQ8sUVOfKuu5JT5qKKS3OCwyhkYSJnoG+ggmo=
 github.com/agext/levenshtein v1.2.1 h1:QmvMAjj2aEICytGiWzmxoE0x2KZvE0fvmqMOfy2tjT8=

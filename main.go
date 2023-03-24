@@ -264,8 +264,8 @@ var mapGrid Grid
 
 // Grid -
 type Grid struct {
-	XQuarterLenght int
-	YLenght        int
+	XQuarterLength int
+	YLength        int
 	Genesis        int
 	Custom         int
 	Product        int
@@ -276,16 +276,16 @@ type Grid struct {
 func NodeXY(n *hcl.Node, maxGenesis, maxCustom, maxProduct, maxCommodity, maxY int) {
 	switch n.Evolution {
 	case "genesis":
-		n.X = mapGrid.Genesis + mapGrid.XQuarterLenght/(maxCustom+1)*n.EvolutionX
+		n.X = mapGrid.Genesis + mapGrid.XQuarterLength/(maxGenesis+1)*n.EvolutionX
 	case "custom":
-		n.X = mapGrid.Custom + mapGrid.XQuarterLenght/(maxCustom+1)*n.EvolutionX
+		n.X = mapGrid.Custom + mapGrid.XQuarterLength/(maxCustom+1)*n.EvolutionX
 	case "product":
-		n.X = mapGrid.Product + mapGrid.XQuarterLenght/(maxCustom+1)*n.EvolutionX
+		n.X = mapGrid.Product + mapGrid.XQuarterLength/(maxProduct+1)*n.EvolutionX
 	case "commodity":
-		n.X = mapGrid.Commodity + mapGrid.XQuarterLenght/(maxCustom+1)*n.EvolutionX
+		n.X = mapGrid.Commodity + mapGrid.XQuarterLength/(maxCommodity+1)*n.EvolutionX
 	}
 
-	n.Y = -mapGrid.YLenght / (maxY + 1) * (maxY + 1 - n.Visibility)
+	n.Y = -mapGrid.YLength / (maxY + 1) * (maxY + 1 - n.Visibility)
 }
 
 // DrawNode -
@@ -347,21 +347,21 @@ func connect(c *hcl.Connector, a, b *hcl.Node, fontSize int) {
 func grid(s *svg.SVG, margin, width, height, fontSize int) {
 	// Grid
 	//   X
-	xLenght := width - margin*4
+	xLength := width - margin*4
 	xZero := margin * 2
 	xEnd := width - margin*2
 	//   Y
-	yLenght := height - margin*4
+	yLength := height - margin*4
 	yZero := height - margin*2
 	yEnd := margin * 2
 
 	mapGrid = Grid{
-		XQuarterLenght: (width - margin*4) / 4,
+		XQuarterLength: (width - margin*4) / 4,
 		Genesis:        0,
 		Custom:         (width - margin*4) / 4,
 		Product:        (width - margin*4) * 2 / 4,
 		Commodity:      (width - margin*4) * 3 / 4,
-		YLenght:        height - margin*4,
+		YLength:        height - margin*4,
 		Visible:        0,
 	}
 
@@ -378,11 +378,11 @@ func grid(s *svg.SVG, margin, width, height, fontSize int) {
 		s.Line(margin, margin, margin, height-margin, "fill:none;stroke:green")
 
 		s.Translate(xZero, yZero)
-		s.Text(xLenght-40, -yLenght, fmt.Sprintf("%d,%d", xLenght, yLenght), fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:green", fontSize))
+		s.Text(xLength-40, -yLength, fmt.Sprintf("%d,%d", xLength, yLength), fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:green", fontSize))
 		s.Text(0, 0, fmt.Sprintf("%d,%d", xZero, yZero), fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:green", fontSize))
-		s.Text(xLenght/4, 0, fmt.Sprintf("%d,%d", xLenght/4, 0), fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:green", fontSize))
-		s.Text(xLenght*2/4, 0, fmt.Sprintf("%d,%d", 2*margin+xLenght*2/4, 0), fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:green", fontSize))
-		s.Text(xLenght*3/4, 0, fmt.Sprintf("%d,%d", 2*margin+xLenght*3/4, 0), fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:green", fontSize))
+		s.Text(xLength/4, 0, fmt.Sprintf("%d,%d", xLength/4, 0), fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:green", fontSize))
+		s.Text(xLength*2/4, 0, fmt.Sprintf("%d,%d", 2*margin+xLength*2/4, 0), fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:green", fontSize))
+		s.Text(xLength*3/4, 0, fmt.Sprintf("%d,%d", 2*margin+xLength*3/4, 0), fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:green", fontSize))
 		s.Gend()
 	}
 
@@ -393,20 +393,20 @@ func grid(s *svg.SVG, margin, width, height, fontSize int) {
 	s.Line(xZero, yZero, xEnd, yZero, "fill:none;stroke:black;marker-end:url(#arrow)")
 	s.Line(xZero, yZero, xZero, yEnd, "fill:blue;stroke:black;marker-end:url(#arrow)")
 
-	s.Line(2*margin+xLenght/4, yZero, 2*margin+xLenght/4, yEnd, `fill:none;stroke:gray;stroke-dasharray:1,10`)
-	s.Line(2*margin+xLenght*2/4, yZero, 2*margin+xLenght*2/4, yEnd, `fill:none;stroke:gray;stroke-dasharray:1,10`)
-	s.Line(2*margin+xLenght*3/4, yZero, 2*margin+xLenght*3/4, yEnd, `fill:none;stroke:gray;stroke-dasharray:1,10`)
+	s.Line(2*margin+xLength/4, yZero, 2*margin+xLength/4, yEnd, `fill:none;stroke:gray;stroke-dasharray:1,10`)
+	s.Line(2*margin+xLength*2/4, yZero, 2*margin+xLength*2/4, yEnd, `fill:none;stroke:gray;stroke-dasharray:1,10`)
+	s.Line(2*margin+xLength*3/4, yZero, 2*margin+xLength*3/4, yEnd, `fill:none;stroke:gray;stroke-dasharray:1,10`)
 
 	// Text
 	s.Text(xZero, height-margin, "Genesis", fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:black", fontSize))
-	s.Text(2*margin+xLenght/4, height-margin, "Custom", fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:black", fontSize))
-	s.Text(2*margin+xLenght*2/4, height-margin, "Product (+rental)", fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:black", fontSize))
-	s.Text(2*margin+xLenght*3/4, height-margin, "Commodity (+utility)", fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:black", fontSize))
+	s.Text(2*margin+xLength/4, height-margin, "Custom", fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:black", fontSize))
+	s.Text(2*margin+xLength*2/4, height-margin, "Product (+rental)", fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:black", fontSize))
+	s.Text(2*margin+xLength*3/4, height-margin, "Commodity (+utility)", fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:black", fontSize))
 	s.Text(xEnd-100, height-2*margin-5, "Evolution", fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:black;font-weight:bold;font-family:serif", fontSize+2))
 
 	s.TranslateRotate(xZero, yZero, 270)
 	s.Text(0, -5, "Invisible", fmt.Sprintf("text-anchor:top;font-size:%dpx;fill:black", fontSize))
-	s.Text(yLenght-50, -5, "Visible", fmt.Sprintf("text-anchor:top;font-size:%dpx;fill:black", fontSize))
-	s.Text(yLenght-100, fontSize+2+5, "Value Chain", fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:black;font-weight:bold;font-family:serif", fontSize+2))
+	s.Text(yLength-50, -5, "Visible", fmt.Sprintf("text-anchor:top;font-size:%dpx;fill:black", fontSize))
+	s.Text(yLength-100, fontSize+2+5, "Value Chain", fmt.Sprintf("text-anchor:left;font-size:%dpx;fill:black;font-weight:bold;font-family:serif", fontSize+2))
 	s.Gend()
 }

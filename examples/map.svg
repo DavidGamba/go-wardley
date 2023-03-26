@@ -34,29 +34,29 @@
 <g style="font-size:9px;fill:black;text-anchor:left">
 <text x="288" y="-394" ></text>
 </g>
-<path d="M 420,-505 700,-404" id="user-vcs" style="fill:none;stroke:black;opacity:0.2" />
+<path d="M 420,-505 653,-404" id="user-vcs" style="fill:none;stroke:black;opacity:0.2" />
 <g style="font-size:9px;fill:black;text-anchor:left">
-<text x="568" y="-445" ></text>
+<text x="544" y="-445" ></text>
 </g>
-<path d="M 700,-404 840,-404 980,-404" style="fill:white;stroke:red;opacity:0.6;stroke-dasharray:6,6;marker-mid:url(#connector-inertia);marker-end:url(#connector-arrow)" />
+<path d="M 653,-404 816,-404 980,-404" style="fill:white;stroke:red;opacity:0.6;stroke-dasharray:6,6;marker-mid:url(#connector-inertia);marker-end:url(#connector-arrow)" />
 <g style="font-size:9px;fill:black;text-anchor:left">
-<text x="848" y="-394" ></text>
+<text x="824" y="-394" ></text>
 </g>
-<path d="M 700,-404 700,-202" id="vcs-ci_cd" style="fill:none;stroke:black;opacity:0.2" />
+<path d="M 653,-404 653,-202" id="vcs-ci_cd" style="fill:none;stroke:black;opacity:0.2" />
 <g style="font-size:9px;fill:black;text-anchor:left">
-<text x="708" y="-293" ></text>
+<text x="661" y="-293" ></text>
 </g>
 <path d="M 980,-404 980,-202" id="code_commit-code_pipeline" style="fill:none;stroke:red;opacity:0.2" />
 <g style="font-size:9px;fill:black;text-anchor:left">
 <text x="988" y="-293" ></text>
 </g>
-<path d="M 700,-202 840,-202 980,-202" style="fill:white;stroke:red;opacity:0.6;stroke-dasharray:6,6;marker-mid:url(#connector-inertia);marker-end:url(#connector-arrow)" />
+<path d="M 653,-202 816,-202 980,-202" style="fill:white;stroke:red;opacity:0.6;stroke-dasharray:6,6;marker-mid:url(#connector-inertia);marker-end:url(#connector-arrow)" />
 <g style="font-size:9px;fill:black;text-anchor:left">
-<text x="848" y="-192" ></text>
+<text x="824" y="-192" ></text>
 </g>
-<path d="M 140,-303 490,-303 840,-303" style="fill:white;stroke:red;opacity:0.6;stroke-dasharray:6,6;marker-mid:url(#connector-inertia);marker-end:url(#connector-arrow)" />
+<path d="M 140,-303 443,-303 746,-303" style="fill:white;stroke:red;opacity:0.6;stroke-dasharray:6,6;marker-mid:url(#connector-inertia);marker-end:url(#connector-arrow)" />
 <g style="font-size:9px;fill:black;text-anchor:left">
-<text x="498" y="-293" ></text>
+<text x="451" y="-293" ></text>
 </g>
 <path d="M 420,-202 140,-101" style="fill:none;stroke:black;opacity:0.8" />
 <g style="font-size:9px;fill:black;text-anchor:left">
@@ -66,17 +66,17 @@
 <g style="font-size:9px;fill:black;text-anchor:left">
 <text x="428" y="-142" ></text>
 </g>
-<path d="M 420,-202 700,-101" id="tooling-terraform_v012" style="fill:none;stroke:red;opacity:0.2" />
+<path d="M 420,-202 653,-101" id="tooling-terraform_v012" style="fill:none;stroke:red;opacity:0.2" />
 <g style="font-size:9px;fill:black;text-anchor:left">
-<text x="568" y="-142" ></text>
+<text x="544" y="-142" ></text>
 </g>
 <path d="M 140,-101 280,-101 420,-101" style="fill:white;stroke:black;opacity:0.6;stroke-dasharray:6,6;marker-end:url(#connector-arrow)" />
 <g style="font-size:9px;fill:black;text-anchor:left">
 <text x="288" y="-91" ></text>
 </g>
-<path d="M 420,-101 560,-101 700,-101" style="fill:white;stroke:red;opacity:0.6;stroke-dasharray:6,6;marker-mid:url(#connector-inertia);marker-end:url(#connector-arrow)" />
+<path d="M 420,-101 536,-101 653,-101" style="fill:white;stroke:red;opacity:0.6;stroke-dasharray:6,6;marker-mid:url(#connector-inertia);marker-end:url(#connector-arrow)" />
 <g style="font-size:9px;fill:black;text-anchor:left">
-<text x="568" y="-91" ></text>
+<text x="544" y="-91" ></text>
 </g>
 <g style="text-shadow: 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white">
 <title>User Description</title>
@@ -87,9 +87,9 @@
 </g>
 <g style="text-shadow: 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white">
 <title>On prem VCS</title>
-<circle cx="700" cy="-404" r="5" style="fill:black;stroke:black" />
+<circle cx="653" cy="-404" r="5" style="fill:black;stroke:black" />
 <g style="font-size:9px;fill:black;text-anchor:left">
-<text x="708" y="-394" >On Prem VCS</text>
+<text x="661" y="-394" >On Prem VCS</text>
 </g>
 </g>
 <g style="text-shadow: 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white">
@@ -109,17 +109,17 @@
 </g>
 <g style="text-shadow: 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white">
 <title>Utopia world, ask for an environment using the browser for example.</title>
-<circle cx="840" cy="-303" r="5" style="fill:black;stroke:red" />
+<circle cx="746" cy="-303" r="5" style="fill:black;stroke:red" />
 <g style="font-size:9px;fill:black;text-anchor:left">
-<text x="848" y="-293" >Rest based deployment</text>
-<text x="848" y="-281" >API Gateway/Lambda</text>
+<text x="754" y="-293" >Rest based deployment</text>
+<text x="754" y="-281" >API Gateway/Lambda</text>
 </g>
 </g>
 <g style="text-shadow: 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white">
 <title>Product we have to maintain and customize in house.</title>
-<circle cx="700" cy="-202" r="5" style="fill:black;stroke:black" />
+<circle cx="653" cy="-202" r="5" style="fill:black;stroke:black" />
 <g style="font-size:9px;fill:black;text-anchor:left">
-<text x="708" y="-192" >On Prem CI/CD</text>
+<text x="661" y="-192" >On Prem CI/CD</text>
 </g>
 </g>
 <g style="text-shadow: 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white">
@@ -152,9 +152,9 @@
 </g>
 <g style="text-shadow: 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white">
 <title>Many fixes to syntax and to index management.</title>
-<circle cx="700" cy="-101" r="5" style="fill:white;stroke:black" />
+<circle cx="653" cy="-101" r="5" style="fill:white;stroke:black" />
 <g style="font-size:9px;fill:black;text-anchor:left">
-<text x="708" y="-91" >Terraform v0.12</text>
+<text x="661" y="-91" >Terraform v0.12</text>
 </g>
 </g>
 </g>

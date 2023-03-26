@@ -1,11 +1,12 @@
 = Changelog
 
-== v0.3.0 WIP
+== v0.3.0
 
 * Update HCL code to allow element references.
 It allows to reference a previous element in the next one.
 * Update README.
 * Update example.
+* https://github.com/DavidGamba/go-wardley/pull/1[Fix Calculation of Node X Position Relative to Max x For Evolution], thanks https://github.com/cwarden[@cwarden]!
 
 == v0.2.0
 

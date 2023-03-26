@@ -3,13 +3,13 @@ module github.com/DavidGamba/go-wardley
 go 1.13
 
 require (
-	github.com/DavidGamba/go-getoptions v0.20.2
-	github.com/ajstarks/svgo v0.0.0-20191124160048-bd5c74aaa11c
+	github.com/DavidGamba/go-getoptions v0.27.0
+	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b
 	github.com/davecgh/go-spew v1.1.1
-	github.com/fsnotify/fsnotify v1.4.7
-	github.com/hashicorp/hcl/v2 v2.6.0
-	github.com/zclconf/go-cty v1.5.0
+	github.com/fsnotify/fsnotify v1.6.0
+	github.com/hashicorp/hcl/v2 v2.16.2
+	github.com/zclconf/go-cty v1.13.1
 
 	// workaround for error: //go:linkname must refer to declared function or variable
-	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 // indirect
+	golang.org/x/sys v0.6.0 // indirect
 )

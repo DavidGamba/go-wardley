@@ -13,6 +13,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -34,6 +35,9 @@ var logger = log.New(ioutil.Discard, "", log.LstdFlags)
 // Show guides in drawing
 var showGuides bool
 
+// Add jitter to nodes' X and Y positions to reduce overlapping
+var jitter bool
+
 // Keeps count of connect path IDs
 var connectID int
 
@@ -46,6 +50,7 @@ func main() {
 	opt := getoptions.New()
 	opt.Bool("help", false, opt.Alias("?"))
 	opt.Bool("debug", false, opt.Description("Show debug logs"))
+	opt.BoolVar(&jitter, "jitter", false, opt.Description("Add jitter to node positions"))
 	opt.IntVarOptional(&port, "serve", 8080, opt.Description("Serve the drawing at localhost:<port>"), opt.ArgName("port"))
 	opt.Bool("version", false, opt.Alias("V"), opt.Description("Print version information"))
 	opt.Bool("watch", false, opt.Description("Watch file for changes"))
@@ -286,6 +291,14 @@ func NodeXY(n *hcl.Node, maxGenesis, maxCustom, maxProduct, maxCommodity, maxY i
 	}
 
 	n.Y = -mapGrid.YLength / (maxY + 1) * (maxY + 1 - n.Visibility)
+	if jitter {
+		jitterSizeX := mapGrid.XQuarterLength / 20
+		jitterX := -jitterSizeX + rand.Intn(jitterSizeX*2+1)
+		jitterSizeY := mapGrid.YLength / 100
+		jitterY := -jitterSizeY + rand.Intn(jitterSizeY*2+1)
+		n.X += jitterX
+		n.Y += jitterY
+	}
 }
 
 // DrawNode -
